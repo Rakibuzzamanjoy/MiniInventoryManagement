@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MiniInventoryManagement.DAL.Models.DomainModels;
+using MiniInventoryManagement.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

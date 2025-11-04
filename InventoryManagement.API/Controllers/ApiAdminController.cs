@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MiniInventoryManagement.BLL.DTOs;
 using MiniInventoryManagement.BLL.Services;
-using MiniInventoryManagement.DAL.Models.DomainModels;
-using MiniInventoryManagement.DAL.Models.DTOs;
 
 namespace InventoryManagement.API.Controllers
 {
@@ -34,22 +33,23 @@ namespace InventoryManagement.API.Controllers
             
             
             var result = await _inventoryService.ModifyProductInfo(id, productInformation);
-            if(result == null)
+            if(result != null)
             {
-                return NotFound("Product not available!");
+                return Ok("Product with id : " + result.ProductId + "Updated Succesfully!");                
             }
-            return Ok(result);
+            throw new Exception("Product not available!");
+
         }
 
         [HttpDelete("RemoveProduct/{id}")]
         public async Task<IActionResult> RemoveProduct(int id)
         {
             var result = await _inventoryService.RemoveProduct(id);
-            if (result == null)
+            if (result != null)
             {
-                return NotFound("Product not available!");
+                return Ok("Product with id : " + result.ProductId + "removed Succesfully!");
             }
-            return Ok(result);
+            throw new Exception("Product not available!");
         }
 
     }

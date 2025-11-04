@@ -1,20 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniInventoryManagement.DAL.Context;
-using MiniInventoryManagement.DAL.Models.DomainModels;
-using MiniInventoryManagement.DAL.Models.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MiniInventoryManagement.DAL.Models;
 
 namespace MiniInventoryManagement.DAL.Repositories
 {
     public interface IOrderRepository
     {       
-        Task<OrderInformation> CreateNewOrder(OrderInfoDTO orderInformation, decimal orderAmount);
+        Task<OrderInformation> CreateNewOrder(OrderInformation orderInformation, decimal orderAmount);
         Task<List<OrderInformation>> GetOrderList();
-        Task<OrderHistory> AddOrderToOrderHistory(OrderHistoryDTO item, int orderId, decimal price);
+        Task<OrderHistory> AddOrderToOrderHistory(OrderHistory item, int orderId, decimal price);
         Task<OrderInformation> UpdateOrderStatus(OrderInformation result);
     }
     public class OrderRepository : IOrderRepository
@@ -26,17 +20,24 @@ namespace MiniInventoryManagement.DAL.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<OrderInformation> CreateNewOrder(OrderInfoDTO orderInformation, decimal orderAmount)
+        public async Task<OrderInformation> CreateNewOrder(OrderInformation orderInformation, decimal orderAmount)
         {
-            var orderInfo = new OrderInformation();
-            
-            orderInfo.CustomerName = orderInformation.CustomerName;
-            orderInfo.OrderDate = DateTime.Now;
-            orderInfo.TotalAmount = orderAmount;
+            try
+            {
+                var orderInfo = new OrderInformation();
 
-            _dbContext.OrderInformation.Add(orderInfo);
-            await _dbContext.SaveChangesAsync();
-            return orderInfo;
+                orderInfo.CustomerName = orderInformation.CustomerName;
+                orderInfo.OrderDate = DateTime.Now;
+                orderInfo.TotalAmount = orderAmount;
+
+                _dbContext.OrderInformation.Add(orderInfo);
+                await _dbContext.SaveChangesAsync();
+                return orderInfo;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error creating new order: " + ex.Message);
+            }
 
         }
 
@@ -46,17 +47,24 @@ namespace MiniInventoryManagement.DAL.Repositories
             return result;
         }
 
-        public async Task<OrderHistory> AddOrderToOrderHistory(OrderHistoryDTO item, int orderId, decimal price)
+        public async Task<OrderHistory> AddOrderToOrderHistory(OrderHistory item, int orderId, decimal price)
         {
-            var orderHistory = new OrderHistory();
-            orderHistory.OrderId = orderId;
-            orderHistory.ProductId = item.ProductId;
-            orderHistory.Quantity = item.Quantity;
-            orderHistory.UnitPrice = price;
+            try
+            {
+                var orderHistory = new OrderHistory();
+                orderHistory.OrderId = orderId;
+                orderHistory.ProductId = item.ProductId;
+                orderHistory.Quantity = item.Quantity;
+                orderHistory.UnitPrice = price;
 
-            _dbContext.OrderHistory.Add(orderHistory);
-            await _dbContext.SaveChangesAsync();
-            return orderHistory;
+                _dbContext.OrderHistory.Add(orderHistory);
+                await _dbContext.SaveChangesAsync();
+                return orderHistory;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error adding order to order history: " + ex.Message);
+            }
         }
 
         public async Task<OrderInformation> UpdateOrderStatus(OrderInformation result)

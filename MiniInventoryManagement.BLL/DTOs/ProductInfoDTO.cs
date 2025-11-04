@@ -5,10 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MiniInventoryManagement.DAL.Models.DTOs
+namespace MiniInventoryManagement.BLL.DTOs
 {
     public class ProductInfoDTO
     {
+        
+
         [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
@@ -21,6 +23,7 @@ namespace MiniInventoryManagement.DAL.Models.DTOs
 
         [Required]
         public int StockQuantity { get; set; }
-      
+       
+
     }
 }

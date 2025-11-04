@@ -1,12 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Infrastructure;
-using MiniInventoryManagement.DAL.Models.DomainModels;
-using MiniInventoryManagement.DAL.Models.DTOs;
+﻿using AutoMapper;
+using MiniInventoryManagement.BLL.DTOs;
+using MiniInventoryManagement.DAL.Models;
 using MiniInventoryManagement.DAL.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace MiniInventoryManagement.BLL.Services
 {
@@ -14,85 +10,125 @@ namespace MiniInventoryManagement.BLL.Services
     {
         Task<ProductInformation> AddNewProduct(ProductInfoDTO productInformation);
         Task<ProductInformation> ModifyProductInfo(int id, ProductInfoDTO productInformation);
-        Task<List<ProductInformation>> ViewProductList();
-        Task<ProductInformation> GetProductInfoById(int id);
+        Task<List<ProductInformation>> ViewProductList();       
         Task<ProductInformation> RemoveProduct(int id);
 
         Task<List<OrderInformation>> GetOrderList();
 
-        Task<OrderInformation> CreateNewOrder(OrderInfoDTO orderInformation, decimal orderAmount);
-        Task<OrderHistory> AddOrderToOrderHistory(OrderHistoryDTO item, int orderId, decimal price);
-        Task<OrderInformation> UpdateOrderStatus(OrderInformation result);
-
-        Task<ProductInformation> UpdateProductStock(int id, int quantity);
+        Task<OrderInformation> CreateNewOrder(OrderInfoDTO orderInformation);
+       
     }
     public class InventoryService:IInventoryService
     {
         private readonly IProductRepository _productRepository;
         private readonly IOrderRepository _orderRepository;
+        private readonly IMapper _mapper;
 
-        public InventoryService(IProductRepository productRepository, IOrderRepository orderRepository)
+        public InventoryService(IProductRepository productRepository, IOrderRepository orderRepository, IMapper mapper)
         {
             _productRepository = productRepository;
             _orderRepository = orderRepository;
+            _mapper = mapper;
         }
 
         public async Task<ProductInformation> AddNewProduct(ProductInfoDTO productInformation)
         {
-            var result = await _productRepository.AddNewProduct(productInformation);
+            var productInfo = _mapper.Map<ProductInformation>(productInformation);
+            var result = await _productRepository.AddNewProduct(productInfo);            
             return result;
         }
 
         public async Task<List<ProductInformation>> ViewProductList()
         {
-            var result = await _productRepository.ViewProductList();
+            var result = await _productRepository.ViewProductList();            
             return result;
         }
 
         public async Task<ProductInformation> GetProductInfoById(int id)
         {
-            var productInfo = await _productRepository.GetProductInfoById(id);
+            var productInfo = await _productRepository.GetProductInfoById(id);        
             return productInfo;
         }
 
         public async Task<ProductInformation> ModifyProductInfo(int id, ProductInfoDTO productInformation)
         {
-            var result = await _productRepository.ModifyProductInfo(id, productInformation);
+            var mapData = _mapper.Map<ProductInformation>(productInformation);
+            var result = await _productRepository.ModifyProductInfo(id, mapData);           
             return result;
         }
 
         public async Task<ProductInformation> RemoveProduct(int id)
         {
-            var result = await _productRepository.RemoveProduct(id);
+            var result = await _productRepository.RemoveProduct(id);            
             return result;
         }
 
 
         public async Task<List<OrderInformation>> GetOrderList()
         {
-            return await _orderRepository.GetOrderList();
+            var data = await _orderRepository.GetOrderList();          
+            return data;
         }
 
-        public async Task<OrderInformation> CreateNewOrder(OrderInfoDTO orderInformation, decimal orderAmount)
-        {            
-            var orderInfo = await _orderRepository.CreateNewOrder(orderInformation, orderAmount);          
-            return orderInfo;
+        public async Task<OrderInformation> CreateNewOrder(OrderInfoDTO orderInformation)
+        {
+            decimal orderAmount = 0;
+            ProductInformation productInfo = new ProductInformation();
+            var productModify = new ProductInformation();
+            foreach (var item in orderInformation.OrderItems)
+            {
+                productInfo = await _productRepository.GetProductInfoById(item.ProductId);
+                if (productInfo == null)
+                {
+                    throw new Exception ("No Product available!");
+                }
+                else if (productInfo.StockQuantity < item.Quantity)
+                {
+                    throw new Exception ("Insufficient product!");
+                }
+                else
+                {
+                    orderAmount = orderAmount + (productInfo.Price * item.Quantity);
+                }
+            }
+            var orderInfo = _mapper.Map<OrderInformation>(orderInformation);
+            var result = await _orderRepository.CreateNewOrder(orderInfo, orderAmount);
+            foreach (var item in orderInformation.OrderItems)
+            {
+                var product = await _productRepository.GetProductInfoById(item.ProductId);
+
+                var historyMapData = _mapper.Map<OrderHistory>(item);
+                var orderHistory = await _orderRepository.AddOrderToOrderHistory(historyMapData, result.OrderId, product.Price);
+
+                productModify = await _productRepository.UpdateProductStock(orderHistory.ProductId, orderHistory.Quantity);
+            }
+            if (productModify != null)
+            {
+                result.Status = "Completed";
+                await _orderRepository.UpdateOrderStatus(result);
+            }            
+           
+            return result;
         }
 
         public async Task<OrderHistory> AddOrderToOrderHistory(OrderHistoryDTO item, int orderId, decimal price)
         {
-            var orderHistory = await _orderRepository.AddOrderToOrderHistory(item, orderId, price);
+            var mapData = _mapper.Map<OrderHistory>(item);
+            var orderHistory = await _orderRepository.AddOrderToOrderHistory(mapData, orderId, price);         
             return orderHistory;
         }
 
         public async Task<ProductInformation> UpdateProductStock(int id, int quantity)
         {
-            return await _productRepository.UpdateProductStock(id, quantity);
+            var res = await _productRepository.UpdateProductStock(id, quantity);        
+            return res;
         }
 
-        public async Task<OrderInformation> UpdateOrderStatus(OrderInformation result)
+        public async Task<OrderInformation> UpdateOrderStatus(OrderInfoDTO result)
         {
-            return await _orderRepository.UpdateOrderStatus(result);
+            var mapData = _mapper.Map<OrderInformation>(result);
+            var res = await _orderRepository.UpdateOrderStatus(mapData);           
+            return res;
         }
     }
 }

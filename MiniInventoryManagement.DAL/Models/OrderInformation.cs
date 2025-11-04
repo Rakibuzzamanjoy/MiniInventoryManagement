@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MiniInventoryManagement.DAL.Models.DomainModels
+namespace MiniInventoryManagement.DAL.Models
 {
     public class OrderInformation
     {

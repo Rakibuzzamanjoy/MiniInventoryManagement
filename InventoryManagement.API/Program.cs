@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using MiniInventoryManagement.BLL.Mapper;
 using MiniInventoryManagement.BLL.Services;
 using MiniInventoryManagement.DAL.Context;
 using MiniInventoryManagement.DAL.Repositories;
@@ -17,6 +19,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository,OrderRepository>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
+
+builder.Services.AddAutoMapper(typeof(Mapper));
+
 
 var app = builder.Build();
 

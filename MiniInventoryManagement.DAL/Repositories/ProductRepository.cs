@@ -1,21 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniInventoryManagement.DAL.Context;
-using MiniInventoryManagement.DAL.Models.DomainModels;
-using MiniInventoryManagement.DAL.Models.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MiniInventoryManagement.DAL.Models;
 
 namespace MiniInventoryManagement.DAL.Repositories
 {
     public interface IProductRepository
     {
-        Task<ProductInformation> AddNewProduct(ProductInfoDTO productInformation);
+        Task<ProductInformation> AddNewProduct(ProductInformation productInformation);
         Task<List<ProductInformation>> ViewProductList();
         Task<ProductInformation> GetProductInfoById(int id);
-        Task<ProductInformation> ModifyProductInfo(int id, ProductInfoDTO productInformation);
+        Task<ProductInformation> ModifyProductInfo(int id, ProductInformation productInformation);
         Task<ProductInformation> RemoveProduct(int id);
         Task<ProductInformation> UpdateProductStock(int id, int quantity);
     }
@@ -27,21 +21,27 @@ namespace MiniInventoryManagement.DAL.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<ProductInformation> AddNewProduct(ProductInfoDTO productInformation)
+        public async Task<ProductInformation> AddNewProduct(ProductInformation productInformation)
         {
-            var product = new ProductInformation();
-            
-            product.Name = productInformation.Name;
-            product.Description = productInformation.Description;   
-            product.Price = productInformation.Price; 
-            product.StockQuantity = productInformation.StockQuantity;
-            product.CreatedAt = DateTime.Now;
-            product.UpdatedAt = DateTime.Now;
+            try
+            {
+                var product = new ProductInformation();
 
-            _dbContext.ProductInformation.Add(product);
-            await _dbContext.SaveChangesAsync();
-            return product;
+                product.Name = productInformation.Name;
+                product.Description = productInformation.Description;
+                product.Price = productInformation.Price;
+                product.StockQuantity = productInformation.StockQuantity;
+                product.CreatedAt = DateTime.Now;
+                product.UpdatedAt = DateTime.Now;
 
+                _dbContext.ProductInformation.Add(product);
+                await _dbContext.SaveChangesAsync();
+                return product;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error adding new product: " + ex.Message);
+            }
 
         }
 
@@ -54,59 +54,83 @@ namespace MiniInventoryManagement.DAL.Repositories
         public async Task<ProductInformation> GetProductInfoById(int id)
         {
             var productInfo = await _dbContext.ProductInformation.FirstOrDefaultAsync(x => x.ProductId == id);
-            if (productInfo == null)
+            if (productInfo != null)
             {
-                return null;
+                return productInfo;
             }
-            return productInfo;
+            return null;
         }
 
-        public async Task<ProductInformation> ModifyProductInfo(int id, ProductInfoDTO productInformation)
+        public async Task<ProductInformation> ModifyProductInfo(int id, ProductInformation productInformation)
         {
-            var productInfo = await GetProductInfoById(id);
-            if (productInfo == null) 
+            try
             {
-                return null;
-            }
-            else
-            {
-                productInfo.Name = productInformation.Name == null ? productInfo.Name : productInformation.Name;
-                productInfo.Description = productInformation.Description == null ? productInfo.Description : productInformation.Description;
-                productInfo.Price = productInformation.Price == 0 ? productInfo.Price : productInformation.Price;
-                productInfo.StockQuantity = productInformation.StockQuantity == 0 ? productInfo.StockQuantity : productInformation.StockQuantity;
-                productInfo.UpdatedAt = DateTime.Now;
-            }
+                var productInfo = await GetProductInfoById(id);
 
-            await _dbContext.SaveChangesAsync();
-            return productInfo;            
+                if (productInfo != null)
+                {
+                    productInfo.Name = productInformation.Name == null || productInformation.Name == "" ? productInfo.Name : productInformation.Name;
+                    productInfo.Description = productInformation.Description == null || productInformation.Description == "" ? productInfo.Description : productInformation.Description;
+                    productInfo.Price = productInformation.Price == 0 ? productInfo.Price : productInformation.Price;
+                    productInfo.StockQuantity = productInformation.StockQuantity == 0 ? productInfo.StockQuantity : productInformation.StockQuantity;
+                    productInfo.UpdatedAt = DateTime.Now;
+
+                    await _dbContext.SaveChangesAsync();
+                    return productInfo;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error modifying product information: " + ex.Message);
+            }
         }
 
         public async Task<ProductInformation> RemoveProduct(int id)
         {
             var result = await GetProductInfoById(id);
 
-            if (result == null)
+            if (result != null)            
+            {
+                _dbContext.ProductInformation.Remove(result);
+
+                await _dbContext.SaveChangesAsync();
+                return result;
+            }          
+            
+            else
             {
                 return null;
             }
 
-           else
-            {
-                _dbContext.ProductInformation.Remove(result);
-            }          
-            await _dbContext.SaveChangesAsync();
-            return result;
+           
         }
 
         public async Task<ProductInformation> UpdateProductStock(int id, int quantity)
         {
-            var product = await GetProductInfoById(id);
-            if (product != null)
+            try
             {
-                product.StockQuantity = product.StockQuantity-quantity;
+                var product = await GetProductInfoById(id);
+                if (product != null)
+                {
+                    product.StockQuantity = product.StockQuantity - quantity;
+
+                    await _dbContext.SaveChangesAsync();
+                    return product;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            await _dbContext.SaveChangesAsync();
-            return product;
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating product stock: " + ex.Message);
+            }
+
         }
 
     }
