@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Product Management";
+}
+
+<div ng-app="Prodapp" ng-controller="ProductManagementController">
+    <div class="card col-3">   
+        <a href="/Home/CreateProduct" class="btn btn-secondary">Add New Product</a>
+       
+    </div>
+    <br/>
+    <div class="card">
+        <div class="card-header">
+            <h6>Product Management</h6>
+        </div>
+        <div class="card-body">
+            
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Stock Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="product in Productdata">
+                <td>{{product.productId}}</td>
+                <td>{{product.name}}</td>
+                <td>{{product.description}}</td>
+                <td>{{product.price | currency:'BDT '}}</td>
+                <td>{{product.stockQuantity}}</td>
+                <td>
+                            <button class="btn btn-primary btn-sm" ng-click="editProduct(product.productId)">Edit</button>
+                    <button class="btn btn-danger btn-sm" ng-click="deleteProduct(product.productId)">Delete</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+        </div>
+    </div>
+
+</div>

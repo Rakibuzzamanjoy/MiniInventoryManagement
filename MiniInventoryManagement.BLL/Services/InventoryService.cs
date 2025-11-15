@@ -16,7 +16,9 @@ namespace MiniInventoryManagement.BLL.Services
         Task<List<OrderInformation>> GetOrderList();
 
         Task<OrderInformation> CreateNewOrder(OrderInfoDTO orderInformation);
-       
+        Task<ProductInformation> GetProductInfoById(int id);
+
+
     }
     public class InventoryService:IInventoryService
     {
@@ -62,8 +64,7 @@ namespace MiniInventoryManagement.BLL.Services
             var result = await _productRepository.RemoveProduct(id);            
             return result;
         }
-
-
+        
         public async Task<List<OrderInformation>> GetOrderList()
         {
             var data = await _orderRepository.GetOrderList();          

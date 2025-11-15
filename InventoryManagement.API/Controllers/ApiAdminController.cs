@@ -17,7 +17,11 @@ namespace InventoryManagement.API.Controllers
         public async Task<IActionResult> CreateProduct([FromBody] ProductInfoDTO productInformation)
         {
             var result = await _inventoryService.AddNewProduct(productInformation);
-            return Ok(result);
+            if(result != null)
+            {
+                return Json(new { success = true, message = "Product Added Successfully!" });
+            }
+            return Json(new { success = false, message = "Product Add Failed!" });
         }
 
         [HttpGet("GetProducts")]
@@ -29,13 +33,11 @@ namespace InventoryManagement.API.Controllers
 
         [HttpPut("UpdateProduct/{id}")]
         public async Task<IActionResult>UpdateProduct(int id, [FromBody] ProductInfoDTO productInformation)
-        {
-            
-            
+        {           
             var result = await _inventoryService.ModifyProductInfo(id, productInformation);
             if(result != null)
             {
-                return Ok("Product with id : " + result.ProductId + "Updated Succesfully!");                
+                return Ok("Product with id : " + result.ProductId + " Updated Succesfully!");                
             }
             throw new Exception("Product not available!");
 
@@ -47,9 +49,16 @@ namespace InventoryManagement.API.Controllers
             var result = await _inventoryService.RemoveProduct(id);
             if (result != null)
             {
-                return Ok("Product with id : " + result.ProductId + "removed Succesfully!");
+                return Ok("Product with id : " + result.ProductId + " removed Succesfully!");
             }
             throw new Exception("Product not available!");
+        }
+
+        [HttpGet("GetProductById/{id}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            var result = await _inventoryService.GetProductInfoById(id);
+            return Ok(result);
         }
 
     }
