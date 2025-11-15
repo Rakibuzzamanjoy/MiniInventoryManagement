@@ -17,4 +17,5 @@ A simple RESTful Web API built with .NET 8 and Entity Framework Core for managin
 1. **Clone the repository**
    ```Open Git Bash
    git clone https://github.com/Rakibuzzamanjoy/MiniInventoryManagement.git
-  press Enter
+  
+2. Update the connection string in `appsettings.json` 
