@@ -20,6 +20,14 @@ namespace InventoryManagement.API.Controllers
         {
             return View();
         } 
+        public IActionResult OrderManagement()
+        {
+            return View();
+        }
+        public IActionResult CreateOrder()
+        {
+            return View();
+        }
 
     }
 }

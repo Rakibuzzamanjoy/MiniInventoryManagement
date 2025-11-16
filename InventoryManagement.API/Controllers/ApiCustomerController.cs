@@ -14,17 +14,21 @@ namespace InventoryManagement.API.Controllers
         }
 
         [HttpGet("OrderList")]
-        public async Task<IActionResult> GetOrderList()
+        public async Task<IActionResult> OrderList()
         {
             var result = await _inventoryService.GetOrderList();
             return Ok(result);
         }
 
         [HttpPost("CreateOrder")]
-        public async Task<IActionResult> CreateNewOrder([FromBody] OrderInfoDTO orderInformation)
+        public async Task<IActionResult> CreateOrder([FromBody] OrderInfoDTO orderInformation)
         {
             var result = await _inventoryService.CreateNewOrder(orderInformation);
-            return Ok(result);
+            if (result != null)
+            {
+                return Json(new { success = true, message = "Product Added Successfully!" });
+            }
+            return Json(new { success = false, message = "Product Add Failed!" });
         }
     }
 }

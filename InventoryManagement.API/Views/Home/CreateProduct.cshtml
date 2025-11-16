@@ -25,11 +25,11 @@
                     <div class="row mb-2">
                         <div class="col-sm-3">
                             <label for="price" class="form-label">Price</label>
-                            <input type="number" class="form-control" id="price" ng-model="Product.price" />
+                            <input type="number" class="form-control" id="price" min="0" ng-model="Product.price" />
                         </div>
                         <div class="col-sm-3">
                             <label for="stock" class="form-label">Stock Quantity</label>
-                            <input type="number" class="form-control" id="stock" ng-model="Product.stock" />
+                            <input type="number" class="form-control" id="stock" min="0" ng-model="Product.stock" />
                         </div>                                    
                         
                     </div> 

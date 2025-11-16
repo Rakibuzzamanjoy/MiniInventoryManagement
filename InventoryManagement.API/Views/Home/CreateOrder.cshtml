@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Order Managment";
+}
+
+<div ng-app="OrdApp" ng-controller="OrderManagementController">
+    <div class="row">
+        <div class="card">
+            <div class="card-header">
+                <h6>Add New Order</h6>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="row mb-2">
+                        <div class="col-sm-3">
+                            <label for="name" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="name" ng-model="Order.name" />
+                        </div>                        
+                    </div>
+                    <div class="row mb-2">
+                        <h6>Order Items</h6>
+                       
+                        <div class="border">
+                            <div class="row">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Unit Price</th>
+                                            <th>Total Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="item in orderItems">
+                                            <td>
+                                                {{item.productId}}
+                                            </td>
+                                            <td>
+                                                {{item.quantity}}
+                                            </td>
+                                            <td>
+                                                {{item.unitPrice}}
+                                            </td>
+                                            <td>
+                                                {{item.totalPrice}}
+                                            </td>
+                                            <td>                                                
+                                                
+                                            </td>
+                                        </tr>
+                                        <tr ng-show="addData">
+                                            <td>
+                                                <select class="form-control" id="productId" name="productId" ng-model="productInfo.productId"
+                                                        ng-change="updateUnitPrice()" style="height:40px;">
+                                                    <option value="">---select product---</option>
+                                                    <option ng-repeat="x in ProductList" value="{{x.productId}}" >{{x.name}}</option>
+
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control" id="quantity" min="0" ng-model="productInfo.quantity"
+                                                       ng-change="updateTotalPrice()" />
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control" id="unitPrice" ng-model="productInfo.unitPrice" readonly />
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control" id="totalPrice" ng-model="productInfo.totalPrice" readonly />
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary" ng-click="addOrderItem()">ok</button>
+                                            </td>
+                                        </tr>
+                                        
+                                    </tbody>
+                                </table>   
+                                
+                                <button type="button" class="btn btn-success btn-sm" style="width: auto;" ng-click="addInput()">
+                                    + Add Another Product
+                                </button>
+                                
+                            </div>
+                        </div>                        
+                    </div>
+                    <div class="row mb-3" >
+                        <div class="col-sm-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Order Summary</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Total Items:</strong> {{orderItems.length}}</p>
+                                    <p><strong>Total Quantity:</strong> {{getTotalQuantity()}}</p>
+                                    <p><strong>Order Total:</strong> {{calculateOrderTotal() | currency:'BDT '}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" ng-click="addOrder()">Save Order</button>
+                </form>
+            </div>
+            <div class="card-footer">
+                <a href="/Home/OrderManagement" class="btn btn-secondary mb-3">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
